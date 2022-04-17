@@ -40,7 +40,7 @@ class Room {
 
     newPlayer(player) {
         this.#playerCount++;
-        this.#playerList = player;
+        this.#playerList.push(player);
     }
 
     /**
@@ -86,6 +86,7 @@ class Room {
                 if (username != this.#host) return this.#playerList.push(username);
 
                 if (username == this.#host && data.hostPassword == this.#hostPassword) this.#hostSocket = socket;
+
 
                 socket.emit('init-player-list', JSON.stringify(this.#playerList));
             });
