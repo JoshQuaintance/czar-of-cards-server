@@ -24,7 +24,7 @@ class Room {
     constructor({ roomId, host, password, idleTimer, winningScore, playerLimit, inProgress, hostPassword }) {
         this.#host = host;
         this.#roomId = roomId;
-        this.#password = password;
+        this.#password = password || null;
         this.#idleTimer = idleTimer;
         this.#winningScore = winningScore;
         this.#playerLimit = playerLimit;
@@ -66,6 +66,10 @@ class Room {
         return this.#playerLimit;
     }
 
+    get password() {
+        return this.#password;
+    }
+
     get winningScore() {
         return this.#winningScore;
     }
@@ -87,9 +91,12 @@ class Room {
 
                 if (username == this.#host && data.hostPassword == this.#hostPassword) this.#hostSocket = socket;
 
-
                 socket.emit('init-player-list', JSON.stringify(this.#playerList));
             });
+
+            socket.on('get-player-list', () => {
+                socket.emit('player-list-update', JSON.stringify(this.#playerList));
+            })
         });
 
         gameSocket.listen(this.port);
@@ -101,7 +108,7 @@ class Room {
     #getOpenPort() {
         while (true) {
             let num = Math.floor(1000 + Math.random() * 9000);
-            if (!Room.portsInUse[num]) {
+            if (!Room.portsInUse[num] && num != 3030 && num != 3031) {
                 Room.portsInUse[num] = this.roomId;
                 this.#port = num;
                 break;
