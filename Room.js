@@ -86,17 +86,17 @@ class Room {
 
             socket.once('identification', data => {
                 let username = data.username;
-                console.log(username);
-                if (username != this.#host) return this.#playerList.push(username);
+                
+                if (username != this.#host) this.#playerList.push(username);
 
                 if (username == this.#host && data.hostPassword == this.#hostPassword) this.#hostSocket = socket;
 
-                socket.emit('init-player-list', JSON.stringify(this.#playerList));
+                gameSocket.emit('player-list-update', JSON.stringify(this.#playerList));
             });
 
             socket.on('get-player-list', () => {
                 socket.emit('player-list-update', JSON.stringify(this.#playerList));
-            })
+            });
         });
 
         gameSocket.listen(this.port);
