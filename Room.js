@@ -17,6 +17,7 @@ class Room {
     #playerCount = 0;
     #cardSetInUse = [];
     #playerList = [];
+    #playerSockets = {};
 
     static rooms = {};
     static portsInUse = {};
@@ -31,16 +32,22 @@ class Room {
         this.#inProgress = inProgress || false;
         this.#hostPassword = hostPassword;
 
-        this.newPlayer(host);
+        this.#playerCount++;
+        this.#playerList.push(host);
         this.#getOpenPort();
         this.#createSocket();
 
         Room.rooms[roomId] = this;
     }
 
-    newPlayer(player) {
+    newPlayer(player, socket) {
         this.#playerCount++;
         this.#playerList.push(player);
+        this.#playerSockets[socket.id] = { socket, player };
+    }
+
+    removePlayer(player) {
+        let removingPlayer = this.#playerSockets[]
     }
 
     /**
@@ -82,12 +89,17 @@ class Room {
         });
 
         gameSocket.on('connection', socket => {
+            socket.on('disconnect', () => {
+                this.#playerList.indexOf();
+                gameSocket.emit('player-list-update');
+            });
+
             console.info(`\t New User connected to port ${this.port}`);
 
             socket.once('identification', data => {
                 let username = data.username;
-                
-                if (username != this.#host) this.#playerList.push(username);
+
+                if (username != this.#host) this.newPlayer(username);
 
                 if (username == this.#host && data.hostPassword == this.#hostPassword) this.#hostSocket = socket;
 
